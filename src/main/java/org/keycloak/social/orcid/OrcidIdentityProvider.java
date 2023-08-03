@@ -17,7 +17,7 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
 
     public static final String AUTH_URL = "/authorize";
     public static final String TOKEN_URL = "/token";
-    public static final String DEFAULT_SCOPE = "/authenticate";
+    public static final String DEFAULT_SCOPE = "openid /read-public";
     public static final String RECORD = "/record";
 
     public OrcidIdentityProvider(KeycloakSession session, OrcidIdentityProviderConfig config) {
@@ -60,6 +60,7 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
         for (JsonNode emailAttr : emails) {
             if (! emailAttr.get("primary").isNull() && emailAttr.get("primary").booleanValue()) {
                 email =getJsonProperty(emailAttr, "email");
+                System.out.println("Found and set email: " + email);
                 break;
             }
         }
@@ -75,17 +76,21 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
 
     @Override
     public BrokeredIdentityContext getFederatedIdentity(String response) {
+        System.out.println(response);
         String []  info = extractInfoFromResponse(response, getAccessTokenResponseParameter());
         String accessToken = info[0];
         String orcid = info[1];
 
         try {
-            JsonNode profile = SimpleHttp.doGet(getConfig().getUserInfoUrl()+"/"+orcid+RECORD, session).header("Authorization", "Bearer " + accessToken).asJson();
+            SimpleHttp sh = SimpleHttp.doGet(getConfig().getUserInfoUrl()+"/"+orcid+RECORD, session).header("Authorization", "Bearer " + accessToken);
+            JsonNode profile =sh.asJson();
             BrokeredIdentityContext context =  extractIdentityFromProfile(null, profile);
             context.getContextData().put(FEDERATED_ACCESS_TOKEN, accessToken);
             return context;
         } catch (Exception e) {
+           
             throw new IdentityBrokerException("Could not obtain user profile from orcid.", e);
+           
         }
 
     }
