@@ -65,6 +65,8 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
             }
         }
         user.setEmail(email);
+        //QDR - to match with existing accounts
+        user.setUsername(email);
 
         user.setIdpConfig(getConfig());
         user.setIdp(this);
