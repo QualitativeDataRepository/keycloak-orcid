@@ -40,11 +40,24 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
     protected BrokeredIdentityContext extractIdentityFromProfile(EventBuilder event, JsonNode node) {
         JsonNode orcidIdentifier = node.get("orcid-identifier");
         JsonNode person = node.get("person");
-
-        String id = getJsonProperty(orcidIdentifier, "path");
-
+        //QDR - use email as id/username
+        JsonNode emails = person.get("emails").get("email");
+        String email = null;
+        for (JsonNode emailAttr : emails) {
+            if (! emailAttr.get("primary").isNull() && emailAttr.get("primary").booleanValue()) {
+                email =getJsonProperty(emailAttr, "email");
+                System.out.println("Found and set email: " + email);
+                break;
+            }
+        }
+//        String id = getJsonProperty(orcidIdentifier, "path");
+        System.out.println("Using email as id!");
+        String id = email;
         BrokeredIdentityContext user = new BrokeredIdentityContext(id);
         user.setUsername(id);
+
+        user.setEmail(email);
+
         JsonNode name = person.get("name");
         if (name!= null && ! name.isNull()) {
             String firstName = getJsonProperty(name.get("given-names"), "value");
@@ -55,18 +68,7 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
         String uri = getJsonProperty(orcidIdentifier, "uri");
         user.setUserAttribute("orcid",uri);
 
-        JsonNode emails = person.get("emails").get("email");
-        String email = null;
-        for (JsonNode emailAttr : emails) {
-            if (! emailAttr.get("primary").isNull() && emailAttr.get("primary").booleanValue()) {
-                email =getJsonProperty(emailAttr, "email");
-                System.out.println("Found and set email: " + email);
-                break;
-            }
-        }
-        user.setEmail(email);
-        //QDR - to match with existing accounts
-        user.setUsername(email);
+
 
         user.setIdpConfig(getConfig());
         user.setIdp(this);
