@@ -9,6 +9,7 @@ public class OrcidIdentityProviderConfig extends OAuth2IdentityProviderConfig {
     public static final String DEFAULT_PROFILE_URL = "https://pub.sandbox.orcid.org/v3.0";
     public OrcidIdentityProviderConfig(IdentityProviderModel identityProviderModel) {
         super(identityProviderModel);
+        identityProviderModel.setDisplayName("ORCID");
     }
 
     public OrcidIdentityProviderConfig() {
