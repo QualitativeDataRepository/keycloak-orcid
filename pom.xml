@@ -3,7 +3,7 @@
 
     <groupId>org.keycloak</groupId>
     <artifactId>keycloak-orcid</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.0-qdr</version>
 
     <name>${project.artifactId}</name>
     <description>ORCID as Social Provider in Keycloak</description>
