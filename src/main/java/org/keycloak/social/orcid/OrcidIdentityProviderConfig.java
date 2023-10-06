@@ -6,7 +6,7 @@ import org.keycloak.models.IdentityProviderModel;
 public class OrcidIdentityProviderConfig extends OAuth2IdentityProviderConfig {
     private static final String BASE_URL = "baseUrl";
     private static final String DEFAULT_BASE_URL = "https://sandbox.orcid.org/oauth";
-    public static final String DEFAULT_PROFILE_URL = "https://pub.sandbox.orcid.org/v3.0";
+    public static final String DEFAULT_PROFILE_URL = "https://api.sandbox.orcid.org/v3.0";
     public OrcidIdentityProviderConfig(IdentityProviderModel identityProviderModel) {
         super(identityProviderModel);
         identityProviderModel.setDisplayName("ORCID");

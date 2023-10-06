@@ -9,15 +9,17 @@ import org.keycloak.broker.oidc.mappers.AbstractJsonUserAttributeMapper;
 import org.keycloak.broker.provider.BrokeredIdentityContext;
 import org.keycloak.broker.provider.IdentityBrokerException;
 import org.keycloak.broker.provider.util.SimpleHttp;
+import org.keycloak.broker.provider.util.SimpleHttp.Response;
 import org.keycloak.broker.social.SocialIdentityProvider;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.events.EventBuilder;
+
 
 public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidIdentityProviderConfig> implements SocialIdentityProvider<OrcidIdentityProviderConfig> {
 
     public static final String AUTH_URL = "/authorize";
     public static final String TOKEN_URL = "/token";
-    public static final String DEFAULT_SCOPE = "openid /read-public";
+    public static final String DEFAULT_SCOPE = "openid /read-limited";
     public static final String RECORD = "/record";
 
     public OrcidIdentityProvider(KeycloakSession session, OrcidIdentityProviderConfig config) {
@@ -86,8 +88,9 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
         String orcid = info[1];
 
         try {
-            SimpleHttp sh = SimpleHttp.doGet(getConfig().getUserInfoUrl()+"/"+orcid+RECORD, session).header("Authorization", "Bearer " + accessToken);
-            JsonNode profile =sh.asJson();
+            SimpleHttp sh = SimpleHttp.doGet(getConfig().getUserInfoUrl()+"/"+orcid+RECORD, session).header("Authorization", "Bearer " + accessToken).header("Accept", "application/json");
+            Response resp = sh.asResponse();
+            JsonNode profile = resp.asJson();
             BrokeredIdentityContext context =  extractIdentityFromProfile(null, profile);
             context.getContextData().put(FEDERATED_ACCESS_TOKEN, accessToken);
             return context;
