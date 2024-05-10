@@ -38,26 +38,14 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
 
     @Override
     protected BrokeredIdentityContext extractIdentityFromProfile(EventBuilder event, JsonNode node) {
+        //System.out.println(node.toPrettyString());
         JsonNode orcidIdentifier = node.get("orcid-identifier");
         JsonNode person = node.get("person");
-        //QDR - use email as id/username
-        JsonNode emails = person.get("emails").get("email");
-        String email = null;
-        for (JsonNode emailAttr : emails) {
-            if (! emailAttr.get("primary").isNull() && emailAttr.get("primary").booleanValue()) {
-                email =getJsonProperty(emailAttr, "email");
-                System.out.println("Found and set email: " + email);
-                break;
-            }
-        }
-//        String id = getJsonProperty(orcidIdentifier, "path");
-        System.out.println("Using email as id!");
-        String id = email;
+
+        String id = getJsonProperty(orcidIdentifier, "path");
+
         BrokeredIdentityContext user = new BrokeredIdentityContext(id);
         user.setUsername(id);
-
-        user.setEmail(email);
-
         JsonNode name = person.get("name");
         if (name!= null && ! name.isNull()) {
             String firstName = getJsonProperty(name.get("given-names"), "value");
@@ -68,7 +56,15 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
         String uri = getJsonProperty(orcidIdentifier, "uri");
         user.setUserAttribute("orcid",uri);
 
-
+        JsonNode emails = person.get("emails").get("email");
+        String email = null;
+        for (JsonNode emailAttr : emails) {
+            if (! emailAttr.get("primary").isNull() && emailAttr.get("primary").booleanValue()) {
+                email =getJsonProperty(emailAttr, "email");
+                break;
+            }
+        }
+        user.setEmail(email);
 
         user.setIdpConfig(getConfig());
         user.setIdp(this);
@@ -92,9 +88,7 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
             context.getContextData().put(FEDERATED_ACCESS_TOKEN, accessToken);
             return context;
         } catch (Exception e) {
-           
             throw new IdentityBrokerException("Could not obtain user profile from orcid.", e);
-           
         }
 
     }
