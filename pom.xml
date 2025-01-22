@@ -10,7 +10,8 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <keycloak.version>26.0.7</keycloak.version>
+        <keycloak.version>26.1.0</keycloak.version>
+        <jar.finalName>${project.name}-${version}</jar.finalName>
     </properties>
 
     <dependencies>
