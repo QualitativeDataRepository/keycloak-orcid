@@ -17,7 +17,7 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
 
     public static final String AUTH_URL = "/authorize";
     public static final String TOKEN_URL = "/token";
-    public static final String DEFAULT_SCOPE = "/authenticate";
+    public static final String DEFAULT_SCOPE = "openid /read-public";
     public static final String RECORD = "/record";
 
     public OrcidIdentityProvider(KeycloakSession session, OrcidIdentityProviderConfig config) {
