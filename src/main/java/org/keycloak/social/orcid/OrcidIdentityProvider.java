@@ -38,13 +38,12 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
 
     @Override
     protected BrokeredIdentityContext extractIdentityFromProfile(EventBuilder event, JsonNode node) {
-        //System.out.println(node.toPrettyString());
         JsonNode orcidIdentifier = node.get("orcid-identifier");
         JsonNode person = node.get("person");
 
         String id = getJsonProperty(orcidIdentifier, "path");
 
-        BrokeredIdentityContext user = new BrokeredIdentityContext(id);
+        BrokeredIdentityContext user = new BrokeredIdentityContext(id, getConfig());
         user.setUsername(id);
         JsonNode name = person.get("name");
         if (name!= null && ! name.isNull()) {
@@ -65,8 +64,6 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
             }
         }
         user.setEmail(email);
-
-        user.setIdpConfig(getConfig());
         user.setIdp(this);
 
         AbstractJsonUserAttributeMapper.storeUserProfileForMapper(user, node, getConfig().getAlias());
@@ -76,14 +73,12 @@ public class OrcidIdentityProvider extends AbstractOAuth2IdentityProvider<OrcidI
 
     @Override
     public BrokeredIdentityContext getFederatedIdentity(String response) {
-        System.out.println(response);
         String []  info = extractInfoFromResponse(response, getAccessTokenResponseParameter());
         String accessToken = info[0];
         String orcid = info[1];
 
         try {
-            SimpleHttp sh = SimpleHttp.doGet(getConfig().getUserInfoUrl()+"/"+orcid+RECORD, session).header("Authorization", "Bearer " + accessToken);
-            JsonNode profile =sh.asJson();
+            JsonNode profile = SimpleHttp.doGet(getConfig().getUserInfoUrl()+"/"+orcid+RECORD, session).header("Authorization", "Bearer " + accessToken).asJson();
             BrokeredIdentityContext context =  extractIdentityFromProfile(null, profile);
             context.getContextData().put(FEDERATED_ACCESS_TOKEN, accessToken);
             return context;
